@@ -1,0 +1,434 @@
+---
+title: "Energy Notebook"
+output: html_notebook
+---
+
+## Introduction
+
+## R Environment Set Up
+```{r}
+if(!require("tidyverse")) {
+  install.packages("tidyverse")
+}
+if(!require("ggplot2")) {
+  install.packages("ggplot2")
+}
+if(!require("ggpmisc")) {
+  install.packages("ggpmisc")
+}
+if(!require("sf")) {
+  install.packages("sf")
+}
+if(!require("rnaturalearth")) {
+  install.packages("rnaturalearth")
+}
+if(!require("rnaturalearthdata")) {
+  install.packages("rnaturalearthdata")
+}
+```
+
+```{r}
+# Load libraries into session
+library("tidyverse")
+library("ggplot2")
+library("ggpmisc")
+library("sf")
+library("rnaturalearth")
+library("rnaturalearthdata")
+```
+
+## The Data
+The data used for this project was accessed 2023-05-03 from [Our World In Data](https://ourworldindata.org/explorers/energy): ```owid-energy-data.csv```.
+
+```{r}
+options(scipen=999)
+
+# Load libraries into session
+library("tidyverse")
+library("ggplot2")
+library("rnaturalearth")
+library("rnaturalearthdata")
+
+#
+# Renewable energy data
+#
+hydro_dataset <- read.csv("hydro-usage-by-country.csv")
+wind_dataset <- read.csv("wind-usage-by-country.csv")
+solar_dataset <- read.csv("solar-usage-by-country.csv")
+biofuel_dataset <- read.csv("biofuel-usage-by-country.csv")
+
+windDataToMap <- data.frame(wind_usage = wind_dataset$wind_usage, region = wind_dataset$country)
+windDataToMap <- windDataToMap %>%
+  mutate(region = ifelse(region == "United States", "USA", region),
+         region = ifelse(region == "Democratic Republic of Congo", "Democratic Republic of the Congo", region), 
+         region = ifelse(region == "Congo", "Republic of Congo", region), 
+         region = ifelse(region == "Cote d'Ivoire", "Ivory Coast", region), 
+         region = ifelse(region == "Czechia", "Czech Republic", region), 
+         region = ifelse(region == "Eswatini", "Swaziland", region))
+solarDataToMap <- data.frame(solar_usage = solar_dataset$solar_usage, region = solar_dataset$country)
+solarDataToMap <- solarDataToMap %>%
+  mutate(region = ifelse(region == "United States", "USA", region),
+         region = ifelse(region == "Democratic Republic of Congo", "Democratic Republic of the Congo", region), 
+         region = ifelse(region == "Congo", "Republic of Congo", region), 
+         region = ifelse(region == "Cote d'Ivoire", "Ivory Coast", region), 
+         region = ifelse(region == "Czechia", "Czech Republic", region), 
+         region = ifelse(region == "Eswatini", "Swaziland", region))
+biofuelDataToMap <- data.frame(biofuel_usage = biofuel_dataset$biofuel_usage, region = biofuel_dataset$country)
+biofuelDataToMap <- biofuelDataToMap %>%
+  mutate(region = ifelse(region == "United States", "USA", region),
+         region = ifelse(region == "Democratic Republic of Congo", "Democratic Republic of the Congo", region), 
+         region = ifelse(region == "Congo", "Republic of Congo", region), 
+         region = ifelse(region == "Cote d'Ivoire", "Ivory Coast", region), 
+         region = ifelse(region == "Czechia", "Czech Republic", region), 
+         region = ifelse(region == "Eswatini", "Swaziland", region))
+hydroDataToMap <- data.frame(hydro_usage = hydro_dataset$hydro_usage, region = hydro_dataset$country)
+hydroDataToMap <- hydroDataToMap %>%
+  mutate(region = ifelse(region == "United States", "USA", region),
+         region = ifelse(region == "Democratic Republic of Congo", "Democratic Republic of the Congo", region), 
+         region = ifelse(region == "Congo", "Republic of Congo", region), 
+         region = ifelse(region == "Cote d'Ivoire", "Ivory Coast", region), 
+         region = ifelse(region == "Czechia", "Czech Republic", region), 
+         region = ifelse(region == "Eswatini", "Swaziland", region))
+
+world_Data <- ne_countries(scale = "medium", returnclass = "sf")
+mapData <- map_data("world")
+
+# Basic World Map
+windMapPlot <- ggplot(world_Data) + 
+  geom_map(data = mapData, map = mapData, 
+           aes(x = mapData$long, y = mapData$lat, group = mapData$group, map_id = region),
+           fill = "white", colour = "black", linewidth = 0.5) +
+  
+  # Plot wind data on World Map
+  geom_map(data = windDataToMap, map = mapData,
+           aes(fill = wind_usage, map_id = region),
+           color = "black", size = 0.5) +
+  scale_fill_viridis_b(option = "turbo", trans = "sqrt") +
+  xlab("") + ylab("") +
+  ggtitle("Wind Power Usage Of Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks = element_blank())
+
+# Basic World Map
+solarMapPlot <- ggplot(world_Data) + 
+  geom_map(data = mapData, map = mapData, 
+           aes(x = mapData$long, y = mapData$lat, group = mapData$group, map_id = region),
+           fill = "white", colour = "black", linewidth = 0.5) +
+  
+  # Plot solar data on World Map
+  geom_map(data = solarDataToMap, map = mapData,
+           aes(fill = solar_usage, map_id = region),
+           color = "black", size = 0.5) +
+  scale_fill_viridis_b(option = "turbo", trans = "sqrt") +
+  xlab("") + ylab("") +
+  ggtitle("Solar Power Usage Of Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks = element_blank())
+
+# Basic World Map
+biofuelMapPlot <- ggplot(world_Data) + 
+  geom_map(data = mapData, map = mapData, 
+           aes(x = mapData$long, y = mapData$lat, group = mapData$group, map_id = region),
+           fill = "white", colour = "black", linewidth = 0.5) +
+  
+  # Plot biofuel data on World Map
+  geom_map(data = biofuelDataToMap, map = mapData,
+           aes(fill = biofuel_usage, map_id = region),
+           color = "black", size = 0.5) +
+  scale_fill_viridis_b(option = "turbo", trans = "sqrt") +
+  xlab("") + ylab("") +
+  ggtitle("Biofuel Power Usage Of Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks = element_blank())
+
+# Basic World Map
+hydroMapPlot <- ggplot(world_Data) + 
+  geom_map(data = mapData, map = mapData, 
+           aes(x = mapData$long, y = mapData$lat, group = mapData$group, map_id = region),
+           fill = "white", colour = "black", linewidth = 0.5) +
+  
+  # Plot hydro data on World Map
+  geom_map(data = hydroDataToMap, map = mapData,
+           aes(fill = hydro_usage, map_id = region),
+           color = "black", size = 0.5) +
+  scale_fill_viridis_b(option = "turbo", trans = "sqrt") +
+  xlab("") + ylab("") +
+  ggtitle("Hydro Power Usage Of Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks = element_blank())
+
+nuclear_plot <- ggplot(nuclear_dataset, aes(x = country, y = nuclear_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Nuclear Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="For 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") + 
+  annotate(geom = "table",
+           x = 2,
+           y = 1800,
+           label = nuclear_table)
+
+# Save plot to image
+ggsave("wind-map.png", plot = windMapPlot, width = 8, height = 5)
+ggsave("solar-map.png", plot = solarMapPlot, width = 8, height = 5)
+ggsave("biofuel-map.png", plot = biofuelMapPlot, width = 8, height = 5)
+ggsave("hydro-map.png", plot = hydroMapPlot, width = 8, height = 5)
+```
+
+
+```{r}
+# Load libraries into session
+library("tidyverse")
+library("ggplot2")
+library("rnaturalearth")
+library("rnaturalearthdata")
+
+#
+# Non-renewable energy data
+#
+gas_dataset <- read.csv("gas-usage-by-country.csv")
+coal_dataset <- read.csv("coal-usage-by-country.csv")
+oil_dataset <- read.csv("oil-usage-by-country.csv")
+#nuclear_dataset <- read.csv("nuclear-usage-by-country.csv")
+
+gasDataToMap <- data.frame(gas_usage = gas_dataset$gas_usage, region = gas_dataset$country)
+gasDataToMap <- gasDataToMap %>%
+  mutate(region = ifelse(region == "United States", "USA", region),
+         region = ifelse(region == "Democratic Republic of Congo", "Democratic Republic of the Congo", region), 
+         region = ifelse(region == "Congo", "Republic of Congo", region), 
+         region = ifelse(region == "Cote d'Ivoire", "Ivory Coast", region), 
+         region = ifelse(region == "Czechia", "Czech Republic", region), 
+         region = ifelse(region == "Eswatini", "Swaziland", region))
+
+oilDataToMap <- data.frame(oil_usage = oil_dataset$oil_usage, region = oil_dataset$country)
+oilDataToMap <- oilDataToMap %>%
+  mutate(region = ifelse(region == "United States", "USA", region),
+         region = ifelse(region == "Democratic Republic of Congo", "Democratic Republic of the Congo", region), 
+         region = ifelse(region == "Congo", "Republic of Congo", region), 
+         region = ifelse(region == "Cote d'Ivoire", "Ivory Coast", region), 
+         region = ifelse(region == "Czechia", "Czech Republic", region), 
+         region = ifelse(region == "Eswatini", "Swaziland", region))
+
+coalDataToMap <- data.frame(coal_usage = coal_dataset$coal_usage, region = coal_dataset$country)
+coalDataToMap <- coalDataToMap %>%
+  mutate(region = ifelse(region == "United States", "USA", region),
+         region = ifelse(region == "Democratic Republic of Congo", "Democratic Republic of the Congo", region), 
+         region = ifelse(region == "Congo", "Republic of Congo", region), 
+         region = ifelse(region == "Cote d'Ivoire", "Ivory Coast", region), 
+         region = ifelse(region == "Czechia", "Czech Republic", region), 
+         region = ifelse(region == "Eswatini", "Swaziland", region))
+
+world_Data <- ne_countries(scale = "medium", returnclass = "sf")
+mapData <- map_data("world")
+
+# Basic World Map
+gasMapPlot <- ggplot(world_Data) + 
+  geom_map(data = mapData, map = mapData, 
+           aes(x = mapData$long, y = mapData$lat, group = mapData$group, map_id = region),
+           fill = "white", colour = "black", linewidth = 0.5) +
+  
+  # Plot gas data on World Map
+  geom_map(data = gasDataToMap, map = mapData,
+           aes(fill = gas_usage, map_id = region),
+           color = "black", size = 0.5) +
+  scale_fill_viridis_b(option = "turbo", trans = "sqrt") +
+  xlab("") + ylab("") +
+  ggtitle("Gas Power Usage Of Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks = element_blank())
+
+# Basic World Map
+oilMapPlot <- ggplot(world_Data) + 
+  geom_map(data = mapData, map = mapData, 
+           aes(x = mapData$long, y = mapData$lat, group = mapData$group, map_id = region),
+           fill = "white", colour = "black", linewidth = 0.5) +
+  
+  # Plot oil data on World Map
+  geom_map(data = oilDataToMap, map = mapData,
+           aes(fill = oil_usage, map_id = region),
+           color = "black", size = 0.5) +
+  scale_fill_viridis_b(option = "turbo", trans = "sqrt") +
+  xlab("") + ylab("") +
+  ggtitle("Oil Power Usage Of Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks = element_blank())
+
+# Basic World Map
+coalMapPlot <- ggplot(world_Data) + 
+  geom_map(data = mapData, map = mapData, 
+           aes(x = mapData$long, y = mapData$lat, group = mapData$group, map_id = region),
+           fill = "white", colour = "black", linewidth = 0.5) +
+  
+  # Plot coal data on World Map
+  geom_map(data = coalDataToMap, map = mapData,
+           aes(fill = coal_usage, map_id = region),
+           color = "black", size = 0.5) +
+  scale_fill_viridis_b(option = "turbo", trans = "sqrt") +
+  xlab("") + ylab("") +
+  ggtitle("Coal Power Usage Of Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks = element_blank())
+
+# Save plot to image
+ggsave("gas-map.png", plot = gasMapPlot, width = 8, height = 5)
+ggsave("coal-map.png", plot = coalMapPlot, width = 8, height = 5)
+ggsave("oil-map.png", plot = oilMapPlot, width = 8, height = 5)
+```
+
+
+```{r}
+# Load libraries into session
+library("tidyverse")
+library("ggplot2")
+library("rnaturalearth")
+library("rnaturalearthdata")
+
+gas_dataset <- read.csv("gas-usage-by-country.csv")
+coal_dataset <- read.csv("coal-usage-by-country.csv")
+oil_dataset <- read.csv("oil-usage-by-country.csv")
+hydro_dataset <- read.csv("hydro-usage-by-country.csv")
+wind_dataset <- read.csv("wind-usage-by-country.csv")
+solar_dataset <- read.csv("solar-usage-by-country.csv")
+biofuel_dataset <- read.csv("biofuel-usage-by-country.csv")
+nuclear_dataset <- read.csv("nuclear-usage-by-country.csv")
+
+# Plot wind data to bar chart
+wind_plot <- ggplot(wind_dataset, aes(x = country, y = wind_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Wind Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") + 
+  annotate(geom = "table",
+           x = 15,
+           y = 750,
+           label = wind_table)
+
+# Plot solar data to bar chart
+solar_plot <- ggplot(solar_dataset, aes(x = country, y = solar_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Solar Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") + 
+  annotate(geom = "table",
+           x = 15,
+           y = 300,
+           label = solar_table)
+
+# Plot biofuel data to bar chart
+biofuel_plot <- ggplot(biofuel_dataset, aes(x = country, y = biofuel_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Biofuel Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") + 
+  annotate(geom = "table",
+           x = 15,
+           y = 200,
+           label = biofuel_table)
+
+# Plot hydro data the bar chart
+hydro_plot <- ggplot(hydro_dataset, aes(x = country, y = hydro_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Hydro Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="For 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") + 
+  annotate(geom = "table",
+           x = 15,
+           y = 2500,
+           label = hydro_table)
+
+# Plot gas data to bar chart
+gas_plot <- ggplot(gas_dataset, aes(x = country, y = gas_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Gas Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") + 
+  annotate(geom = "table",
+           x = 15,
+           y = 4000,
+           label = gas_table)
+
+# Plot coal data to bar chart
+coal_plot <- ggplot(coal_dataset, aes(x = country, y = coal_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Coal Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") + 
+  annotate(geom = "table",
+           x = 15,
+           y = 15000,
+           label = coal_table)
+
+# Plot oil data to bar chart
+oil_plot <- ggplot(oil_dataset, aes(x = country, y = oil_usage)) + 
+  geom_col() +
+  xlab("") + ylab("Terawatt Hours") + 
+  ggtitle("Oil Power Usage Of The Top Energy Consuming Countries", 
+          subtitle="In 2021") + 
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "None") +
+  annotate(geom = "table",
+           x = 9,
+           y = 8000,
+           label = oil_table)
+
+# Save plot to image
+ggsave("hydro-by-country.png", plot = hydro_plot)
+ggsave("nuclear-by-country.png", plot = nuclear_plot)
+ggsave("wind-by-country.png", plot = wind_plot)
+ggsave("solar-by-country.png", plot = solar_plot)
+ggsave("biofuel-by-country.png", plot = biofuel_plot)
+ggsave("gas-by-country.png", plot = gas_plot)
+ggsave("coal-by-country.png", plot = coal_plot)
+ggsave("oil-by-country.png", plot = oil_plot)
+```
+
+```{r}
+options(scipen=999)
+gdp_dataset <- read.csv("gdp-by-country.csv")
+gdp_table <- gdp_dataset %>%
+  arrange(desc(GDP))
+top_gdp <- data.frame(top_n(gdp_table, 5))
+
+a <- grid.table(top_gdp) +
+  theme_minimal() + 
+  theme(title = "Top 5 GDP Countries")
+ggplot() + 
+  theme_minimal() + 
+  theme(axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.line = element_blank()) +
+  ggtitle("Top 5 GDP Countries") +
+  annotate(geom = "table",
+           x = 0,
+           y = 0,
+           label = top_gdp)
+
+```
