@@ -77,6 +77,7 @@ FROM All_Energy_Countries
 ORDER BY oil_usage DESC;
 
 -- Examine which countries have highest gdp
+-- Vanity stats: not using
 DROP VIEW IF EXISTS All_Energy_Countries;
 CREATE VIEW All_Energy_Countries AS
 SELECT country,
@@ -101,6 +102,7 @@ WHERE year == 2018
 	AND wind_consumption IS NOT NULL
 GROUP BY country
 
+-- Vanity stats: not using
 DROP VIEW IF EXISTS All_GDP_Countries;
 CREATE VIEW All_GDP_Countries AS
 SELECT country,
@@ -110,6 +112,7 @@ WHERE year = 2018
 	AND iso_code IS NOT NULL
 ORDER BY GDP DESC
 
+-- Vanity stats: not using
 SELECT _gdp.country,
 	_gdp.GDP,
 	energy.solar_usage,
