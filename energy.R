@@ -466,7 +466,7 @@ electric_plot <- ggplot(electric_dataset, aes(x = country, y = electric_usage)) 
 # Save plot to image
 ggsave("hydro-by-country.png", plot = hydro_plot, width = 8, height = 5)
 ggsave("nuclear-by-country.png", plot = nuclear_plot, width = 8, height = 5)
-ggsave("electric-by-country.png", plot = electric_plot, width = 8, height = 5)
+ggsave("electric-by-country.png", plot = electric_plot)
 ggsave("wind-by-country.png", plot = wind_plot, width = 8, height = 5)
 ggsave("solar-by-country.png", plot = solar_plot, width = 8, height = 5)
 ggsave("biofuel-by-country.png", plot = biofuel_plot, width = 8, height = 5)
