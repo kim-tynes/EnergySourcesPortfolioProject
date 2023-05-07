@@ -1,6 +1,9 @@
 
 ## LOAD LIBRARIES INTO SESSION #################################################
-pacman::p_load("tidyverse", "ggplot2", "ggpmisc", "gridExtra", "sf",
+if(!require("pacman")) {
+	install.packages("pacman")
+}
+pacman::p_load("pacman", "tidyverse", "ggplot2", "ggpmisc", "gridExtra", "sf",
                "rnaturalearth", "rnaturalearthdata", "rworldmap", "rio")
 
 options(scipen=999)
@@ -195,6 +198,9 @@ electricDataToMap <- electricDataToMap %>%
          region = ifelse(region == "Czechia", "Czech Republic", region), 
          region = ifelse(region == "Eswatini", "Swaziland", region))
 
+#
+## PLOT NON-RENEWABLE ENERGY MAPS ############################################
+#
 # Natural gas usage: Basic World Map
 gasMapPlot <- ggplot(worldData) + 
   geom_map(data = mapData, map = mapData, 
@@ -290,7 +296,7 @@ electricMapPlot <- ggplot(worldData) +
         axis.line = element_blank(),
         axis.ticks = element_blank())
 #
-## SAVE NON-RENEWABLE ENERGY MAPS TO IMAGE FILE ################################
+## SAVE NON-RENEWABLE ENERGY MAPS TO IMAGE FILE ##############################
 #
 ggsave("gas-map.png", plot = gasMapPlot, width = 8, height = 5)
 ggsave("coal-map.png", plot = coalMapPlot, width = 8, height = 5)
@@ -298,9 +304,10 @@ ggsave("oil-map.png", plot = oilMapPlot, width = 8, height = 5)
 ggsave("nuclear-map.png", plot = nuclearMapPlot, width = 8, height = 5)
 ggsave("electric-map.png", plot = electricMapPlot, width = 8, height = 5)
 
-## RENEWABLE ENERGY SOURCES DATA TABLES ############################################
+## RENEWABLE ENERGY SOURCES DATA TABLES ######################################
 
-# Plot wind data to bar chart
+# Filter out countries that do not use all energy sources
+# It would be too many countries (70) to plot with a bar chart
 df1 <- dataset %>%
   filter(!is.na(electric_usage), electric_usage > 0, 
          !is.na(nuclear_usage), nuclear_usage > 0, 
@@ -312,6 +319,7 @@ df1 <- dataset %>%
          !is.na(oil_usage), oil_usage > 0, 
          !is.na(gas_usage), gas_usage > 0)
 
+# Plot wind data to bar chart
 wind_dataset <- df1 %>%
   select(country, wind_usage) %>%
   arrange(desc(wind_usage))
