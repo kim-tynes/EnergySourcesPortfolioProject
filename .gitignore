@@ -4,4 +4,4 @@ gitpush
 .html
 .db
 .Rproj
-.R*
+.Rproj.user

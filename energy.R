@@ -1,14 +1,3 @@
----
-title: "Energy Usage Notebook"
-output: html_notebook
----
-
-## Introduction
-
-## The Data
-The data used for this project was accessed 2023-05-03 from [Our World In Data](https://ourworldindata.org/explorers/energy): ```owid-energy-data.csv```.
-
-```{r}
 
 ## LOAD LIBRARIES INTO SESSION #################################################
 pacman::p_load("tidyverse", "ggplot2", "ggpmisc", "gridExtra", "sf",
@@ -206,7 +195,6 @@ electricDataToMap <- electricDataToMap %>%
          region = ifelse(region == "Czechia", "Czech Republic", region), 
          region = ifelse(region == "Eswatini", "Swaziland", region))
 
-## DRAW NON-RENEWABLE ENERGY MAP PLOTS #############################################
 # Natural gas usage: Basic World Map
 gasMapPlot <- ggplot(worldData) + 
   geom_map(data = mapData, map = mapData, 
@@ -484,4 +472,3 @@ ggsave("oil-by-country.png", plot = oil_plot, width = 8, height = 5)
 rm(list = ls())
 pacman::p_unload(all)
 cat("\014")
-```
